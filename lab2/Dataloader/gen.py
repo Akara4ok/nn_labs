@@ -4,7 +4,7 @@ import numpy as np
 import sys
 
 sys.path.append('Models')
-from fun import circle_fun
+from func import circle_fun
 sys.path.append('config')
 from settings import RANDOM_SEED
 from settings import TOTAL_COUNT
