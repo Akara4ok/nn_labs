@@ -11,7 +11,7 @@ from settings import VAL_PERCENT
 from settings import TEST_PERCENT
 from settings import BATCH_SIZE
 
-from feed_forward import FeedForwardModel
+from elman import ElmanModel
 
 data = Dataloader('Data/data.csv')
 train, val, test = data.split(TRAIN_PERCENT, VAL_PERCENT, TEST_PERCENT)
@@ -29,8 +29,8 @@ val_dataset = tf.data.Dataset.from_tensor_slices(
         BATCH_SIZE
         ).prefetch(buffer_size=tf.data.AUTOTUNE)
 
-model_name = 'FeedForward_v1'
-model = FeedForwardModel(hidden_neurons=[10])
+model_name = 'Elman_v1'
+model = ElmanModel(hidden_neurons=[10, 10, 10])
 model.compile(loss = 'mean_squared_error', metrics = ['mean_absolute_error'], optimizer = tf.keras.optimizers.Adam(learning_rate=0.001))
 
 checkpoint_dir = "./Artifacts/Models/" + model_name + "/Checkpoints/"
