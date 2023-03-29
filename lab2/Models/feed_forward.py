@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-def FeedForwardModel(input_size = (1, 2), hidden_neurons = [10]):
+def FeedForwardModel(input_size = (2), hidden_neurons = [10]):
     inputs = tf.keras.layers.Input(input_size)
     current_layer = inputs
     for neurons in hidden_neurons:

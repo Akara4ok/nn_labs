@@ -1,6 +1,9 @@
 import sys
+import numpy as np
 import argparse
 import tensorflow as tf
+import absl.logging
+absl.logging.set_verbosity(absl.logging.ERROR)
 from keras.callbacks import ModelCheckpoint
 
 sys.path.append('Dataloader')
@@ -19,6 +22,8 @@ from settings import DATA_PATH
 from settings import BATCH_SIZE
 from settings import SAVE_FOLDER
 from settings import EPOCHS
+from settings import RANDOM_SEED
+from settings import DEFAULT_LR
 
 def train(model_name,
           version,
@@ -29,25 +34,12 @@ def train(model_name,
           test_percent = TEST_PERCENT,
           save_folder = SAVE_FOLDER,
           epochs = EPOCHS,
-          batch_size = BATCH_SIZE):
+          batch_size = BATCH_SIZE,
+          lr = DEFAULT_LR):
 
     data = Dataloader(data_path)
     train, val, test = data.split(train_percent, val_percent, test_percent)
-
-    train_dataset = tf.data.Dataset.from_tensor_slices(
-            (train[:, :2].reshape(-1, 1, 2), train[:, 2])
-        ).batch(
-                batch_size
-                ).prefetch(buffer_size=tf.data.AUTOTUNE)
-
-
-    val_dataset = tf.data.Dataset.from_tensor_slices(
-            (val[:, :2].reshape(-1, 1, 2), val[:, 2])
-        ).batch(
-            batch_size
-            ).prefetch(buffer_size=tf.data.AUTOTUNE)
     
-    full_model_name = model_name + '_' + version
     model = None
     if(model_name == 'FeedForward'):
         model = FeedForwardModel(hidden_neurons=hidden_neurons)
@@ -56,15 +48,28 @@ def train(model_name,
     elif(model_name == 'Elman'):
         model = ElmanModel(hidden_neurons=hidden_neurons)
 
+    #values for schedules
+    initial_learning_rate = 10**(-3)
+    final_learning_rate = 10**(-7)
+    learning_rate_decay_factor = (final_learning_rate / initial_learning_rate)**(1/epochs)
+    steps_per_epoch = int(len(train)/batch_size)
+
+    learning_rate = lr
+    if(lr == -1):
+        learning_rate = tf.keras.optimizers.schedules.ExponentialDecay(
+                        initial_learning_rate=initial_learning_rate,
+                        decay_steps=steps_per_epoch,
+                        decay_rate=learning_rate_decay_factor
+                    )
+
+
     model.compile(loss = 'mean_squared_error', metrics = ['mean_absolute_error'], 
                 optimizer = tf.keras.optimizers.SGD(
-                    learning_rate=tf.keras.optimizers.schedules.ExponentialDecay(
-                        0.001,
-                        100,
-                        96
-                    )))
+                    learning_rate=learning_rate))
+    
+    path_to_save = save_folder + '/' + model_name + '/' + version + '/'
 
-    checkpoint_dir = save_folder + full_model_name + "/Checkpoints/"
+    checkpoint_dir = path_to_save + "Checkpoints/"
     checkpoint_path = checkpoint_dir + "cp-{epoch:04d}.ckpt"
     checkpoint = ModelCheckpoint(filepath=checkpoint_path, 
                                 monitor='val_loss', 
@@ -72,7 +77,7 @@ def train(model_name,
                                 save_weights_only = True, 
                                 mode='auto')
 
-    tf_path = save_folder + full_model_name + "/Model/tf"
+    tf_path = path_to_save + "Model/tf"
     fullModelSave = ModelCheckpoint(filepath=tf_path, 
                                 monitor='val_loss', 
                                 verbose=1,
@@ -80,19 +85,23 @@ def train(model_name,
                                 mode='auto')
 
 
-    log_dir = save_folder + full_model_name + "/Logs/"
+    log_dir = path_to_save + "Logs/"
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
     callbacks_list = [checkpoint, tensorboard_callback, fullModelSave]
 
     model.fit(
-        train_dataset,
+        np.reshape(train[:, :2], (-1, 2)),
+        train[:, 2],
+        batch_size,
         epochs = epochs, 
-        validation_data = val_dataset,
+        validation_data = (np.reshape(val[:, :2], (-1, 2)), val[:, 2]),
         callbacks = callbacks_list,
         verbose = 1)
     
 if __name__ == '__main__':
+    tf.random.set_seed(RANDOM_SEED)
+
     parser=argparse.ArgumentParser()
 
     parser.add_argument("--model-name", "-m", help="type of model architecture", type=str)
@@ -108,16 +117,19 @@ if __name__ == '__main__':
 
     parser.add_argument("--epochs", "-e", default=EPOCHS, help="number of epochs", type=int)
     parser.add_argument("--batch-size", "-b", default=BATCH_SIZE, help="batch size", type=int)
+    parser.add_argument("--learning-rate", "-l", default=DEFAULT_LR, help="learning rate(-1 -- means schedules)", type=float)
 
     args = vars(parser.parse_args())
+    
 
     train(args['model_name'],
           args['version'],
-          args['hidden_neurons'].split(','),
+          [int(x) for x in args['hidden_neurons'].split(',')],
           args['data_path'],
           args['train_percent'],
           args['val_percent'],
           args['test_percent'],
           args['save_folder'],
           args['epochs'],
-          args['batch_size'])
+          args['batch_size'],
+          args['learning_rate'])

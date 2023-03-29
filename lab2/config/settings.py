@@ -7,3 +7,4 @@ BATCH_SIZE = 10000
 DATA_PATH = 'Data/data.csv'
 SAVE_FOLDER = './Artifacts/Models/'
 EPOCHS = 500
+DEFAULT_LR = -1
