@@ -4,3 +4,6 @@ TRAIN_PERCENT = 0.7
 VAL_PERCENT = 0.1
 TEST_PERCENT = 0.2
 BATCH_SIZE = 10000
+DATA_PATH = 'Data/data.csv'
+SAVE_FOLDER = './Artifacts/Models/'
+EPOCHS = 500
