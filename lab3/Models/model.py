@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-def Model(hidden_neurons = [50, 50]):
+def Model(hidden_neurons):
     model = tf.keras.Sequential()
     model.add(tf.keras.Input(shape=(28,28)))
     model.add(tf.keras.layers.Flatten())
