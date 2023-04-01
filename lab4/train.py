@@ -1,5 +1,7 @@
 import sys
 import argparse
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 import tensorflow as tf
 import absl.logging
 absl.logging.set_verbosity(absl.logging.ERROR)
