@@ -75,13 +75,14 @@ def train(version,
 
 
     log_dir = path_to_save + "Logs/"
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
 
     callbacks_list = [checkpoint, tensorboard_callback, fullModelSave]
 
     model.fit(
         train_ds,
         epochs = epochs, 
+        shuffle=False,
         validation_data = validation_ds,
         callbacks = callbacks_list,
         verbose = 1)
