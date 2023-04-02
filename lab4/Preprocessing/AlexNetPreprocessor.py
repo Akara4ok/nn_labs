@@ -10,4 +10,6 @@ def process_images(image, label):
 def create_data_pipeline(dataset, batch_size):
     dataset_size = tf.data.experimental.cardinality(dataset).numpy()
     return dataset.shuffle(buffer_size = dataset_size, reshuffle_each_iteration=True).map(process_images).batch(batch_size = batch_size, drop_remainder = True)
-    
+
+def create_test_data_pipeline(dataset, batch_size):
+    return dataset.map(process_images).batch(batch_size = batch_size)
