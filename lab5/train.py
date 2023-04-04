@@ -21,8 +21,7 @@ from InceptionV3 import InceptionV3
 
 
 
-def train(desired_value,
-          version,
+def train(version,
           data_path = settings.DATA_PATH,
           label_path = settings.LABELS_PATH,          
           batch_size = settings.BATCH_SIZE,
@@ -39,10 +38,10 @@ def train(desired_value,
     
     class_names = stanfordDataset.get_all_labels()
 
-    preprocessor = StanfordPreprocessing(class_names, desired_value, settings.IMAGE_HEIGHT, settings.IMAGE_WIDTH)
+    preprocessor = StanfordPreprocessing(class_names, settings.IMAGE_HEIGHT, settings.IMAGE_WIDTH)
     (train_ds, val_ds, test_ds) = stanfordDataset.create_data_pipelines(preprocessor)
 
-    model = InceptionV3((settings.IMAGE_HEIGHT, settings.IMAGE_WIDTH, 3), 1)
+    model = InceptionV3((settings.IMAGE_HEIGHT, settings.IMAGE_WIDTH, 3), len(class_names))
     
     #values for schedules
     initial_learning_rate = 10**(-2)
@@ -59,13 +58,13 @@ def train(desired_value,
                     )
 
 
-    model.compile(loss='binary_crossentropy', 
+    model.compile(loss='sparse_categorical_crossentropy', 
                   metrics=['accuracy'], 
                   optimizer=tf.keras.optimizers.SGD(learning_rate=learning_rate))
     
     
     
-    path_to_save = save_folder + '/' + desired_value + '/' + version + '/'
+    path_to_save = save_folder  + '/' + version + '/'
 
     checkpoint_dir = path_to_save + "Checkpoints/"
     checkpoint_path = checkpoint_dir + "cp-{epoch:04d}.ckpt"
@@ -101,8 +100,7 @@ if __name__ == '__main__':
     tf.random.set_seed(settings.RANDOM_SEED)
 
     parser=argparse.ArgumentParser()
-
-    parser.add_argument("--desired-value", help="name of dog", type=str)
+    
     parser.add_argument("--version", "-v", help="version of the model", type=str)
     
     parser.add_argument("--data-path", "-d", default=settings.DATA_PATH, help="number of validation samples", type=str)
@@ -117,8 +115,7 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
     
 
-    train(args['desired_value'],
-          args['version'],
+    train(args['version'],
           args['data_path'],
           args['labels_path'],
           args['batch_size'],
