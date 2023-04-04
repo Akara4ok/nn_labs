@@ -2,8 +2,6 @@ import tensorflow as tf
 import pathlib
 import numpy as np
 import sys
-sys.path.append('Preprocessings')
-from StanfordPreprocessing import StanfordPreprocessing
 sys.path.append('config')
 import settings
 
@@ -11,17 +9,17 @@ class StanfordDataset:
     def __init__(self, 
                  data_path, 
                  label_path,
-                 desired_value,
-                 batch_size) -> None:
+                 batch_size,
+                 random_seed = settings.RANDOM_SEED,
+                 val_percent = settings.VAL_PERCENT,
+                 test_percent = settings.TEST_PERCENT) -> None:
         
         self.data_path = data_path
         self.label_path = label_path
-        self.random_seed = settings.RANDOM_SEED
-        self.val_percent = settings.VAL_PERCENT
-        self.test_percent = settings.TEST_PERCENT
+        self.random_seed = random_seed
+        self.val_percent = val_percent
+        self.test_percent = test_percent
         self.labels = self.read_labels(label_path)
-        self.desired_value = desired_value
-        self.preprocessor = StanfordPreprocessing(self.labels, self.desired_value, settings.IMAGE_HEIGHT, settings.IMAGE_WIDTH)
         self.batch_size = batch_size
         
 
@@ -52,24 +50,21 @@ class StanfordDataset:
         
         return np.array(data.split('\n'))
 
-    def create_train_pipeline(self, ds):
+    def create_train_pipeline(self, ds, preprocessor):
         image_count = len(ds)
-        ds = ds.shuffle(buffer_size = image_count, reshuffle_each_iteration=True).map(self.preprocessor.process_path, num_parallel_calls=tf.data.AUTOTUNE).batch(batch_size = self.batch_size)
+        ds = ds.shuffle(buffer_size = image_count, reshuffle_each_iteration=True).map(preprocessor.process_path, num_parallel_calls=tf.data.AUTOTUNE).batch(batch_size = self.batch_size)
         return ds
 
-    def create_test_pipeline(self, ds):
-        ds = ds.map(self.preprocessor.process_path, num_parallel_calls=tf.data.AUTOTUNE).batch(batch_size = self.batch_size)
+    def create_test_pipeline(self, ds, preprocessor):
+        ds = ds.map(preprocessor.process_path, num_parallel_calls=tf.data.AUTOTUNE).batch(batch_size = self.batch_size)
         return ds
     
-    def get_datasets(self):
+    def create_data_pipelines(self, preprocessor):
         (train_ds, val_ds, test_ds) = self.load_data(self.data_path, self.random_seed, self.val_percent, self.test_percent)
-        train_ds = self.create_train_pipeline(train_ds)
-        val_ds = self.create_test_pipeline(val_ds)
-        test_ds = self.create_test_pipeline(test_ds)
+        train_ds = self.create_train_pipeline(train_ds, preprocessor)
+        val_ds = self.create_test_pipeline(val_ds, preprocessor)
+        test_ds = self.create_test_pipeline(test_ds, preprocessor)
         return (train_ds, val_ds, test_ds)
     
     def get_all_labels(self):
         return self.labels
-    
-    def get_desired_label(self):
-        return self.desired_value
