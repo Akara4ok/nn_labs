@@ -44,8 +44,8 @@ def train(version,
     model = InceptionV3((settings.IMAGE_HEIGHT, settings.IMAGE_WIDTH, 3), len(class_names))
     
     #values for schedules
-    initial_learning_rate = 10**(-2)
-    final_learning_rate = 10**(-4)
+    initial_learning_rate = 10**(-1)
+    final_learning_rate = 10**(-5)
     learning_rate_decay_factor = (final_learning_rate / initial_learning_rate)**(1/epochs)
     steps_per_epoch = len(train_ds)
     

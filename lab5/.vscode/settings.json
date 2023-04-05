@@ -3,6 +3,7 @@
         "./Datasets",
         "./config",
         "./Preprocessings",
-        "./Models"
+        "./Models",
+        "./Postprocessing"
     ]
 }
