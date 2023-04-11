@@ -25,12 +25,12 @@ class Dataset:
 
     def load_data(self):
         #create and shuffle dataset
+        data_dir = pathlib.Path(self.data_path)
+        data_ds = tf.data.Dataset.list_files(str(data_dir/'*/*'), shuffle=False)
         previous_seed, _ = tf.compat.v1.get_seed(0)
         tf.random.set_seed(self.random_seed)
-        data_dir = pathlib.Path(self.data_path)
-        data_ds = tf.data.Dataset.list_files(str(data_dir/'*/*'), shuffle=False, seed=self.random_seed)
         image_count = len(data_ds)
-        data_ds = data_ds.shuffle(buffer_size = image_count, reshuffle_each_iteration=False)
+        data_ds = data_ds.shuffle(buffer_size = image_count, seed=self.random_seed, reshuffle_each_iteration=False)
         tf.random.set_seed(previous_seed)        
         
         #split to train, val, test
