@@ -16,7 +16,8 @@ import settings
 sys.path.append('Preprocessing')
 from preprocessing import LogoPreprocessing
 
-import matplotlib.pyplot as plt
+sys.path.append('Models')
+from xception import Xception
 
 def train(version,
           data_path = settings.DATA_PATH,
@@ -35,7 +36,44 @@ def train(version,
     class_names = logoDataset.get_all_labels()
     
     preprocessor = LogoPreprocessing(class_names, settings.IMAGE_HEIGHT, settings.IMAGE_WIDTH)
-    (train, val, test) = logoDataset.create_data_pipelines(preprocessor)
+    (train_ds, val_ds, test_ds) = logoDataset.create_data_pipelines(preprocessor)
+    
+    model = Xception((299, 299, 3), len(class_names))
+    
+    model.compile(loss='sparse_categorical_crossentropy', 
+                  metrics=['accuracy'], 
+                  optimizer=tf.keras.optimizers.SGD(learning_rate=lr))
+    
+    path_to_save = save_folder  + '/' + version + '/'
+
+    checkpoint_dir = path_to_save + "Checkpoints/"
+    checkpoint_path = checkpoint_dir + "cp-{epoch:04d}.ckpt"
+    checkpoint = ModelCheckpoint(filepath=checkpoint_path, 
+                                monitor='val_loss', 
+                                verbose=1,
+                                save_weights_only = True, 
+                                mode='auto')
+
+    tf_path = path_to_save + "Model/tf"
+    fullModelSave = ModelCheckpoint(filepath=tf_path, 
+                                monitor='val_loss', 
+                                verbose=1,
+                                save_best_only=True,
+                                mode='auto')
+
+
+    log_dir = path_to_save + "Logs/"
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
+
+    callbacks_list = [checkpoint, tensorboard_callback, fullModelSave]
+
+    model.fit(
+        train_ds,
+        epochs = epochs, 
+        shuffle=False,
+        validation_data = val_ds,
+        callbacks = callbacks_list,
+        verbose = 1)
 
 
 if __name__ == '__main__':
