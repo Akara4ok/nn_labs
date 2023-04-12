@@ -19,6 +19,9 @@ from lstmmodel import LstmModel
 sys.path.append('Preprocessing')
 from preprocessing import YelpPreprocessing
 
+sys.path.append('Callbacks')
+from export_model import ExportModelCallback 
+
 def train(version,
           data_path = settings.DATA_PATH,
           batch_size = settings.BATCH_SIZE,
@@ -32,11 +35,12 @@ def train(version,
     train_ds = train_ds.map(preprocessor.vectorize_text)
     val_ds = val_ds.map(preprocessor.vectorize_text)
     
-    model = LstmModel()
+    vocab_size = len(preprocessor.get_encoder().get_vocabulary())
+    model = LstmModel(vocab_size)
     
-    model.compile(loss='sparse_categorical_crossentropy', 
+    model.compile(loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
                   metrics=['accuracy'], 
-                  optimizer=tf.keras.optimizers.SGD(learning_rate=lr))
+                  optimizer=tf.keras.optimizers.Adam(learning_rate=lr))
     
     path_to_save = save_folder  + '/' + version + '/'
 
@@ -49,11 +53,7 @@ def train(version,
                                 mode='auto')
 
     tf_path = path_to_save + "Model/tf"
-    fullModelSave = ModelCheckpoint(filepath=tf_path, 
-                                monitor='val_loss', 
-                                verbose=1,
-                                save_best_only=True,
-                                mode='auto')
+    fullModelSave = ExportModelCallback(tf_path, preprocessor.get_encoder(), lr)
 
 
     log_dir = path_to_save + "Logs/"

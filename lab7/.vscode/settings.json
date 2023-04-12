@@ -3,6 +3,7 @@
         "./config",
         "./Dataset",
         "./Models",
-        "./Preprocessing"
+        "./Preprocessing",
+        "./Callbacks"
     ]
 }
