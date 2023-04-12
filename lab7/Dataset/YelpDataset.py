@@ -1,4 +1,3 @@
-import numpy as np
 import sys
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
@@ -8,7 +7,6 @@ import tensorflow as tf
 
 sys.path.append('config')
 import settings
-
  
 def download_data(path = settings.DATA_PATH, val_percent = settings.VAL_PERCENT):
     dataset = tfds.load('yelp_polarity_reviews', data_dir=path, as_supervised=True)

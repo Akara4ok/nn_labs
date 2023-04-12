@@ -16,6 +16,9 @@ import settings
 sys.path.append('Models')
 from lstmmodel import LstmModel
 
+sys.path.append('Preprocessing')
+from preprocessing import YelpPreprocessing
+
 def train(version,
           data_path = settings.DATA_PATH,
           batch_size = settings.BATCH_SIZE,
@@ -23,7 +26,11 @@ def train(version,
           epochs = settings.EPOCHS,
           lr = settings.DEFAULT_LR):
     
-    train_ds, val_ds, test_ds = YelpDataset.load_data()
+    train_ds, val_ds, test_ds = YelpDataset.load_data(data_path, val_percent=settings.VAL_PERCENT, buffer_size=settings.BUFFER_SIZE, batch_size=batch_size)
+    preprocessor = YelpPreprocessing(train_ds)
+    
+    train_ds = train_ds.map(preprocessor.vectorize_text)
+    val_ds = val_ds.map(preprocessor.vectorize_text)
     
     model = LstmModel()
     
