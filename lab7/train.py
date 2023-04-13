@@ -20,7 +20,7 @@ sys.path.append('Preprocessing')
 from preprocessing import YelpPreprocessing
 
 sys.path.append('Callbacks')
-from export_model import ExportModelCallback 
+from convert_model import ConvertModelCallback 
 
 def train(version,
           data_path = settings.DATA_PATH,
@@ -52,14 +52,19 @@ def train(version,
                                 save_weights_only = True, 
                                 mode='auto')
 
-    tf_path = path_to_save + "Model/tf"
-    fullModelSave = ExportModelCallback(tf_path, preprocessor.get_encoder(), lr)
-
+    full_dev_path = path_to_save + settings.DEV_MODEL 
+    fullModelSave = ModelCheckpoint(filepath=path_to_save + settings.DEV_MODEL, 
+                                monitor='val_loss', 
+                                verbose=1,
+                                save_best_only=True,
+                                mode='auto')
+    full_prod_path = path_to_save + settings.PROD_MODEL
+    convertToProdModel = ConvertModelCallback(full_dev_path, full_prod_path, preprocessor.get_encoder(), lr, 3)
 
     log_dir = path_to_save + "Logs/"
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
 
-    callbacks_list = [checkpoint, tensorboard_callback, fullModelSave]
+    callbacks_list = [checkpoint, tensorboard_callback, fullModelSave, convertToProdModel]
 
     model.fit(
         train_ds,
