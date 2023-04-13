@@ -38,7 +38,7 @@ def train(version,
     vocab_size = len(preprocessor.get_encoder().get_vocabulary())
     model = LstmModel(vocab_size)
     
-    model.compile(loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+    model.compile(loss=tf.keras.losses.BinaryCrossentropy(),
                   metrics=['accuracy'], 
                   optimizer=tf.keras.optimizers.Adam(learning_rate=lr))
     
@@ -59,7 +59,7 @@ def train(version,
                                 save_best_only=True,
                                 mode='auto')
     full_prod_path = path_to_save + settings.PROD_MODEL
-    convertToProdModel = ConvertModelCallback(full_dev_path, full_prod_path, preprocessor.get_encoder(), lr, 3)
+    convertToProdModel = ConvertModelCallback(full_dev_path, full_prod_path, preprocessor.get_encoder(), lr, settings.PROD_CONVERT_FREQ)
 
     log_dir = path_to_save + "Logs/"
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)

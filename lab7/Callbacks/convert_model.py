@@ -31,7 +31,7 @@ class ConvertModelCallback(tf.keras.callbacks.Callback):
                 self.encoder, 
                 self.model])
 
-            export_model.compile(loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+            export_model.compile(loss=tf.keras.losses.BinaryCrossentropy(),
                             metrics=['accuracy'], 
                             optimizer=tf.keras.optimizers.Adam(learning_rate=self.lr))
             

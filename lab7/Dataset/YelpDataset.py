@@ -20,16 +20,11 @@ def download_data(path = settings.DATA_PATH, val_percent = settings.VAL_PERCENT)
     
     return train_dataset, val_dataset, test_dataset
 
-def process_labels(text, labels):
-    one_constant = tf.constant([1], dtype=tf.int64)
-    labels = tf.subtract(labels, one_constant)
-    return text, labels
-
 def create_train_pipeline(dataset, buffer_size = settings.BUFFER_SIZE, batch_size = settings.BATCH_SIZE):
-    return dataset.map(process_labels).shuffle(buffer_size).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+    return dataset.shuffle(buffer_size).batch(batch_size).prefetch(tf.data.AUTOTUNE)
 
 def create_test_pipeline(dataset, batch_size = settings.BATCH_SIZE):
-    return dataset.map(process_labels).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+    return dataset.batch(batch_size).prefetch(tf.data.AUTOTUNE)
 
 def load_data(path = settings.DATA_PATH, val_percent = settings.VAL_PERCENT, buffer_size = settings.BUFFER_SIZE, batch_size = settings.BATCH_SIZE):
     train_ds, val_ds, test_ds = download_data(path, val_percent)

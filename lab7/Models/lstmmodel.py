@@ -7,7 +7,7 @@ def LstmModel(vocab_size):
         tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32)),
         tf.keras.layers.Dense(64, activation='relu'),
         tf.keras.layers.Dropout(0.5),
-        tf.keras.layers.Dense(1)
+        tf.keras.layers.Dense(1, activation='sigmoid')
     ])
     
     return model
