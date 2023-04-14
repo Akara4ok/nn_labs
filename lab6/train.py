@@ -38,9 +38,9 @@ def train(version,
     preprocessor = LogoPreprocessing(class_names, settings.IMAGE_HEIGHT, settings.IMAGE_WIDTH)
     (train_ds, val_ds, test_ds) = logoDataset.create_data_pipelines(preprocessor)
     
-    model = Xception((299, 299, 3), len(class_names))
+    model = Xception((299, 299, 3), 1)
     
-    model.compile(loss='sparse_categorical_crossentropy', 
+    model.compile(loss='binary_crossentropy',
                   metrics=['accuracy'], 
                   optimizer=tf.keras.optimizers.SGD(learning_rate=lr))
     
