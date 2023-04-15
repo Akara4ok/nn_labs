@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import tensorflow as tf
+import cv2
 
 class LogoPreprocessing:
     def __init__(self, labels, img_height, img_width) -> None:
@@ -26,4 +27,8 @@ class LogoPreprocessing:
     def process_single_img(self, file_path):
         img = tf.io.read_file(file_path)
         img = self.decode_img(img)
+        return img
+    
+    def preprocess_opencv_img(self, img):
+        img = cv2.resize(img, (self.img_height, self.img_width))
         return img

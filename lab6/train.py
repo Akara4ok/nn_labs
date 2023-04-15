@@ -42,7 +42,7 @@ def train(version,
     
     model.compile(loss='binary_crossentropy',
                   metrics=['accuracy'], 
-                  optimizer=tf.keras.optimizers.SGD(learning_rate=lr))
+                  optimizer=tf.keras.optimizers.Adam(learning_rate=lr))
     
     path_to_save = save_folder  + '/' + version + '/'
 
