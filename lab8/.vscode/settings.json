@@ -2,6 +2,9 @@
     "python.analysis.extraPaths": [
         "./config",
         "./Dataset",
-        "./Preprocessing"
+        "./Preprocessing",
+        "./Model",
+        "./Postprocessing",
+        "./Callbacks"
     ]
 }
