@@ -11,7 +11,7 @@ SAVE_FOLDER = 'Artifacts/Models'
 BATCH_SIZE = 32
 
 #Model
-EPOCHS = 5
+EPOCHS = 50
 DEFAULT_LR = 0.0001
 
 #Spectrogram

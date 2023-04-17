@@ -22,3 +22,15 @@ class LJSpeechPostprocessing:
     
     def get_num_to_char(self):
         return self.num_to_char
+    
+    def postprocess(self, predictions, use_spell_correction = True):
+        predictions = self.decode_batch_predictions(predictions)
+        
+        if use_spell_correction:
+            for i, prediction in enumerate(predictions):
+                words = prediction.split()
+                words = [self.spell_correction.correction(word) for word in words]
+                predictions[i] = ' '.join(words)
+        
+        return predictions
+        

@@ -14,7 +14,7 @@ class ValidationCallback(tf.keras.callbacks.Callback):
         targets = []
         for batch in self.dataset:
             X, y = batch
-            batch_predictions = self.model.predict(X)
+            batch_predictions = self.model.predict(X, verbose=0)
             batch_predictions = self.postprocessor.decode_batch_predictions(batch_predictions)
             predictions.extend(batch_predictions)
             for label in y:

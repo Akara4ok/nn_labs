@@ -25,9 +25,9 @@ class LjSpeechDataset:
         
         test_split = int(len(self.metadata_df) * test_percent)
         val_split = int(len(self.metadata_df) * (val_percent + test_percent))
+        self.test_pd = self.metadata_df[:test_split]
         test_pd = self.metadata_df[:test_split]
         val_pd = self.metadata_df[test_split:val_split]
-        self.train_pd = self.metadata_df[val_split:]
         train_pd = self.metadata_df[val_split:]
         
         self.train_ds = tf.data.Dataset.from_tensor_slices(
@@ -52,6 +52,9 @@ class LjSpeechDataset:
     
     def get_wavs_path(self):
         return self.wavs_path
+    
+    def get_test_paths(self):
+        return self.test_pd
     
     def create_data_pipeline(self, ds, preprocessor):
         ds = (
