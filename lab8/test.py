@@ -71,7 +71,7 @@ def train(version,
     print("-" * 100)
     print(f"Word Error Rate: {wer_score:.4f}")
     print("-" * 100)
-    for i in range(len(predictions)):
+    for i in range(100):
         print(f"Target    : {targets[i]}")
         print(f"Prediction: {predictions[i]}")
         print("-" * 100)
