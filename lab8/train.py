@@ -27,6 +27,7 @@ sys.path.append('Callbacks')
 from validation_callback import ValidationCallback
 
 def train(version,
+          last_checkpoint = None,
           data_path = settings.DATA_PATH,
           batch_size = settings.BATCH_SIZE,
           save_folder = settings.SAVE_FOLDER,
@@ -64,6 +65,12 @@ def train(version,
                                 verbose=1,
                                 save_weights_only = True, 
                                 mode='auto')
+    
+    init_epoch = 0
+    if(last_checkpoint != None):
+        checkpoint_name = checkpoint_dir + f"cp-{last_checkpoint:04d}.ckpt"
+        init_epoch = last_checkpoint
+        model.load_weights(checkpoint_name)
 
     tf_path = path_to_save + "Model/tf"
     fullModelSave = ModelCheckpoint(filepath=tf_path, 
@@ -82,7 +89,8 @@ def train(version,
 
     model.fit(
         train_ds,
-        epochs = epochs, 
+        epochs = epochs,
+        initial_epoch=init_epoch,
         shuffle=False,
         validation_data = val_ds,
         callbacks = callbacks_list,
@@ -96,6 +104,7 @@ if __name__ == '__main__':
     parser=argparse.ArgumentParser()
     
     parser.add_argument("--version", "-v", default="v1", help="version of the model", type=str)
+    parser.add_argument("--last-checkpoint", "-c", default=None, help="last checkpoint", type=int)
     
     parser.add_argument("--data-path", "-d", default=settings.DATA_PATH, help="path to dataset", type=str)
     parser.add_argument("--save-folder", "-s", default=settings.SAVE_FOLDER, help="path to save models and logs", type=str)
@@ -109,6 +118,7 @@ if __name__ == '__main__':
     
 
     train(args['version'],
+          args['last_checkpoint'],
           args['data_path'],
           args['batch_size'],
           args['save_folder'],
