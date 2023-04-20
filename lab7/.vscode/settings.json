@@ -1,0 +1,9 @@
+{
+    "python.analysis.extraPaths": [
+        "./config",
+        "./Dataset",
+        "./Models",
+        "./Preprocessing",
+        "./Callbacks"
+    ]
+}
